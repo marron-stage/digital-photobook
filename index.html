@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>デジタル写真集 カタログ｜楽天Kobo グラビア・アイドル・声優・タレント一覧</title>
+  <meta name="description" content="週プレ・ヤンジャン・フライデー・FLASHなど人気レーベルの最新デジタル写真集を一覧で比較・検索できるカタログサイトです。" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+  <style>
+    :root {
+      --bg: #fff7ed;
+      --header-bg: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --border: #fed7aa;
+      --primary: #f97316;
+      --primary-dark: #ea580c;
+      --rakuten: #bf0000;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: var(--header-bg);
+      border-bottom: 2px solid #fdba74;
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.12);
+    }
+    .header-inner { max-width: 1100px; margin: 0 auto; }
+    h1 { margin: 0 0 4px; font-size: 1.3rem; color: #7c2d12; }
+    .pr-note { font-size: 0.75rem; color: #9a3412; margin: 0 0 12px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .filter-btn {
+      border: 1px solid #fdba74;
+      background: rgba(255, 255, 255, 0.88);
+      color: #9a3412;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { background: #ffffff; }
+    .filter-btn.active {
+      background: var(--primary-dark);
+      color: #fff;
+      border-color: var(--primary-dark);
+      box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3);
+    }
+    .container { max-width: 1100px; margin: 22px auto; padding: 0 16px 60px; }
+    .auth-box {
+      display: none;
+      max-width: 420px;
+      margin: 0 auto 24px;
+      background: #ffffff;
+      border: 2px solid var(--primary);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.12);
+    }
+    .auth-box.visible { display: block; }
+    .auth-box h2 { margin: 0 0 8px; font-size: 1.05rem; color: #9a3412; }
+    .auth-row { display: flex; gap: 8px; margin-top: 12px; }
+    .auth-row input { flex: 1; }
+    .admin-panel {
+      display: none;
+      background: #ffffff;
+      border: 2px solid var(--primary);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.12);
+    }
+    .admin-panel.visible { display: block; }
+    .admin-panel h2 { margin: 0 0 12px; font-size: 1.1rem; color: #9a3412; }
+    .edit-banner {
+      display: none;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .edit-banner.visible { display: flex; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.8rem; font-weight: 700; color: #9a3412; }
+    input, select, textarea {
+      padding: 9px 10px;
+      border: 1px solid #fdba74;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fffaf5;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #ffffff;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .admin-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+    .btn-save { background: var(--primary-dark); color: #fff; }
+    .btn-save.editing { background: #d97706; }
+    .btn-cancel { background: #e5e7eb; color: #374151; padding: 6px 12px; font-size: 0.8rem; }
+    .btn-export { background: #2563eb; color: #fff; }
+    .btn-reset { background: #ef4444; color: #fff; }
+    .json-output-area { margin-top: 14px; display: none; }
+    .json-output-area textarea {
+      width: 100%;
+      height: 180px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      background: #fff7ed;
+    }
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.08);
+      transition: transform 0.15s;
+    }
+    .card:hover { transform: translateY(-2px); }
+    .card-img-wrap {
+      background: #fffaf5;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid #ffedd5;
+      min-height: 160px;
+    }
+    .card-img-wrap img { max-width: 100%; max-height: 250px; object-fit: contain; border-radius: 6px; }
+    .card-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .badge { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .badge-label { background: #ffedd5; color: #c2410c; }
+    .badge-genre { background: #fef3c7; color: #92400e; }
+    .card-title { font-size: 0.96rem; font-weight: 700; margin: 0 0 10px; line-height: 1.45; }
+    .memo-box {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      color: #7c2d12;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      margin-top: auto;
+    }
+    .price { font-size: 1.18rem; font-weight: 800; color: var(--primary-dark); }
+    .price small { font-size: 0.75rem; font-weight: 400; color: var(--muted); }
+    .release-date { font-size: 0.8rem; color: var(--muted); }
+    .card-actions { display: flex; flex-direction: column; gap: 8px; }
+    .action-btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-rakuten { background: var(--rakuten); color: #fff; }
+    .admin-card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .btn-edit { background: #fef3c7; color: #92400e; font-size: 0.78rem; padding: 6px; }
+    .btn-del { background: #fee2e2; color: #b91c1c; font-size: 0.78rem; padding: 6px; }
+    .empty-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px;
+      color: #9a3412;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+    }
+    .scroll-top-btn {
+      position: fixed;
+      right: 16px;
+      bottom: 18px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--primary-dark);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.15s;
+      z-index: 90;
+    }
+    .scroll-top-btn.visible { opacity: 0.92; pointer-events: auto; }
+    .scroll-top-btn:hover { opacity: 1; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>デジタル写真集 カタログ（楽天Kobo）</h1>
+    <p class="pr-note">※当サイトはアフィリエイト広告（楽天アフィリエイト等）を利用しています。</p>
+
+    <div class="filters" id="labelFilters">
+      <button class="filter-btn active" data-label="すべて">すべて</button>
+      <button class="filter-btn" data-label="週プレ">週プレ</button>
+      <button class="filter-btn" data-label="ヤンジャン">ヤンジャン</button>
+      <button class="filter-btn" data-label="フライデー">フライデー</button>
+      <button class="filter-btn" data-label="FLASH">FLASH</button>
+      <button class="filter-btn" data-label="SPA!">SPA!</button>
+      <button class="filter-btn" data-label="その他">その他</button>
+    </div>
+
+    <div class="filters" id="genreFilters">
+      <button class="filter-btn active" data-genre="すべて">すべて</button>
+      <button class="filter-btn" data-genre="グラビア">グラビア</button>
+      <button class="filter-btn" data-genre="アイドル">アイドル</button>
+      <button class="filter-btn" data-genre="声優・タレント">声優・タレント</button>
+      <button class="filter-btn" data-genre="コスプレ・SNS">コスプレ・SNS</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <section class="auth-box" id="authBox">
+    <h2>🔒 管理パネル ロック解除</h2>
+    <p style="font-size:0.82rem; color:#4b5563; margin:0;">管理者パスワードを入力してください</p>
+    <div class="auth-row">
+      <input type="password" id="adminPassInput" placeholder="パスワード" onkeydown="if(event.key==='Enter') unlockAdmin()" />
+      <button class="btn btn-save" onclick="unlockAdmin()">解除</button>
+    </div>
+  </section>
+
+  <section class="admin-panel" id="adminPanel">
+    <h2>🛠️ デジタル写真集 登録・編集・JSON管理パネル</h2>
+
+    <div class="edit-banner" id="editBanner">
+      <span id="editBannerText">✏️ 既存アイテムを編集中です</span>
+      <button type="button" class="btn btn-cancel" onclick="cancelEdit()">編集をキャンセル</button>
+    </div>
+
+    <details id="manualFormDetails" open style="margin-bottom: 18px;">
+      <summary style="cursor:pointer; font-weight:700; color:#9a3412; margin-bottom:12px;">✍️ 手動で1件ずつ入力・編集する</summary>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>レーベル（出版社）</label>
+          <select id="inLabel">
+            <option value="週プレ">週プレ</option>
+            <option value="ヤンジャン">ヤンジャン</option>
+            <option value="フライデー">フライデー</option>
+            <option value="FLASH">FLASH</option>
+            <option value="SPA!">SPA!</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>属性（ジャンル）</label>
+          <select id="inGenre">
+            <option value="グラビア">グラビア</option>
+            <option value="アイドル">アイドル</option>
+            <option value="声優・タレント">声優・タレント</option>
+            <option value="コスプレ・SNS">コスプレ・SNS</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>配信日（例: 2026-11-16）</label>
+          <input type="date" id="inDate" />
+        </div>
+        <div class="form-group">
+          <label>価格（税込・数字のみ 例: 1320）</label>
+          <input type="number" id="inPrice" placeholder="1320" />
+        </div>
+        <div class="form-group full">
+          <label>作品名</label>
+          <input type="text" id="inTitle" placeholder="【デジタル限定】〇〇写真集..." />
+        </div>
+        <div class="form-group full">
+          <label>表紙画像URL</label>
+          <input type="text" id="inImage" placeholder="https://..." />
+        </div>
+        <div class="form-group full">
+          <label>楽天KoboアフィリエイトURL</label>
+          <input type="text" id="inUrl" placeholder="https://hb.afl.rakuten.co.jp/..." />
+        </div>
+        <div class="form-group full">
+          <label>ひとことメモ（ページ数・見どころなど）</label>
+          <textarea id="inMemo" placeholder="・全75ページ"></textarea>
+        </div>
+      </div>
+      <button class="btn btn-save" id="saveBtn" onclick="saveItem()">＋ 手動入力データをカタログに追加する</button>
+    </details>
+
+    <div class="admin-actions">
+      <button class="btn btn-export" onclick="exportJson()">📋 リストを更新する（JSON書き出し）</button>
+      <button class="btn btn-reset" onclick="resetStorage()">⚠️ ブラウザ一時データをリセット</button>
+    </div>
+
+    <div class="json-output-area" id="jsonOutputArea">
+      <p style="font-size:0.82rem; font-weight:700; margin:10px 0 4px;">
+        ▼ 以下のJSONを全選択コピーして、GitHubの <code>items.json</code> に上書きしてください：
+      </p>
+      <textarea id="jsonText" readonly onclick="this.select()"></textarea>
+    </div>
+  </section>
+
+  <main class="catalog-grid" id="catalogGrid"></main>
+</div>
+
+<button type="button" class="scroll-top-btn" id="scrollTopBtn" aria-label="一番上へ戻る" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">▲</button>
+
+<script>
+  const ADMIN_PASS = "kuroshiba99";
+  const AUTH_SESSION_KEY = "digital_pb_admin_authed";
+  const STORAGE_KEY = "digital_pb_items_v1";
+
+  let catalogItems = [];
+  let currentLabel = "すべて";
+  let currentGenre = "すべて";
+  let editingIndex = null;
+  let isAdminUnlocked = false;
+
+  const isAdminParam = new URLSearchParams(window.location.search).get("admin") === "1";
+
+  function checkAdminAccess() {
+    if (!isAdminParam) return;
+    if (sessionStorage.getItem(AUTH_SESSION_KEY) === "true") {
+      activateAdminMode();
+    } else {
+      document.getElementById("authBox").classList.add("visible");
+    }
+  }
+
+  function unlockAdmin() {
+    const val = document.getElementById("adminPassInput").value;
+    if (val === ADMIN_PASS) {
+      sessionStorage.setItem(AUTH_SESSION_KEY, "true");
+      document.getElementById("authBox").classList.remove("visible");
+      activateAdminMode();
+      renderCatalog();
+    } else {
+      alert("パスワードが違います。");
+    }
+  }
+
+  function activateAdminMode() {
+    isAdminUnlocked = true;
+    document.getElementById("adminPanel").classList.add("visible");
+  }
+
+  checkAdminAccess();
+
+  async function initCatalog() {
+    let fileItems = [];
+    try {
+      const res = await fetch("./items.json?t=" + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) fileItems = data;
+      }
+    } catch (e) {
+      console.warn("items.json読み込みスキップ:", e);
+    }
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        catalogItems = Array.isArray(parsed) ? parsed : fileItems;
+      } catch {
+        catalogItems = fileItems;
+      }
+    } else {
+      catalogItems = fileItems;
+    }
+
+    renderCatalog();
+  }
+
+  function formatPrice(rawPrice) {
+    const num = Number(String(rawPrice).replace(/[^0-9]/g, ""));
+    return isNaN(num) || num === 0 ? "価格未定" : "¥" + num.toLocaleString("ja-JP");
+  }
+
+  function renderCatalog() {
+    const grid = document.getElementById("catalogGrid");
+    if (!Array.isArray(catalogItems)) catalogItems = [];
+
+    const filtered = catalogItems.filter(item => {
+      const matchLabel = currentLabel === "すべて" || item.label === currentLabel;
+      const matchGenre = currentGenre === "すべて" || item.genre === currentGenre;
+      return matchLabel && matchGenre;
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="empty-msg">該当するデジタル写真集がありません。</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map((item) => {
+      const realIndex = catalogItems.indexOf(item);
+      const dateLabel = item.date ? item.date.replace(/-/g, "/") : "未定";
+
+      return `
+        <article class="card">
+          <div class="card-img-wrap">
+            ${item.image ? `<img src="${item.image}" alt="${escapeHtml(item.title || '')}" loading="lazy" />` : `<span style="color:#fdba74;font-size:0.85rem;font-weight:700;">NO IMAGE</span>`}
+          </div>
+          <div class="card-body">
+            <div class="badges">
+              <span class="badge badge-label">${escapeHtml(item.label || 'その他')}</span>
+              <span class="badge badge-genre">${escapeHtml(item.genre || 'グラビア')}</span>
+            </div>
+            <h2 class="card-title">${escapeHtml(item.title || '')}</h2>
+            ${item.memo ? `<div class="memo-box">${escapeHtml(item.memo)}</div>` : ""}
+            <div class="card-meta">
+              <div class="price">${formatPrice(item.price)} <small>(税込)</small></div>
+              <div class="release-date">配信日：${dateLabel}</div>
+            </div>
+            <div class="card-actions">
+              <a class="action-btn btn-rakuten" href="${item.url || '#'}" target="_blank" rel="nofollow sponsored noopener">📱 楽天Koboで詳細・購入</a>
+              ${isAdminUnlocked ? `
+                <div class="admin-card-btns">
+                  <button class="action-btn btn-edit" onclick="editItem(${realIndex})">✏️ 編集する</button>
+                  <button class="action-btn btn-del" onclick="deleteItem(${realIndex})">🗑️ 削除</button>
+                </div>
+              ` : ""}
+            </div>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function editItem(index) {
+    const item = catalogItems[index];
+    if (!item) return;
+
+    editingIndex = index;
+    document.getElementById("manualFormDetails").open = true;
+    document.getElementById("inLabel").value = item.label || "その他";
+    document.getElementById("inGenre").value = item.genre || "グラビア";
+    document.getElementById("inDate").value = item.date || "";
+    document.getElementById("inPrice").value = item.price || "";
+    document.getElementById("inTitle").value = item.title || "";
+    document.getElementById("inImage").value = item.image || "";
+    document.getElementById("inUrl").value = item.url || "";
+    document.getElementById("inMemo").value = item.memo || "";
+
+    const banner = document.getElementById("editBanner");
+    document.getElementById("editBannerText").textContent = `✏️ 編集中：${item.title.slice(0, 28)}...`;
+    banner.classList.add("visible");
+
+    const saveBtn = document.getElementById("saveBtn");
+    saveBtn.textContent = "💾 変更を上書き保存する";
+    saveBtn.classList.add("editing");
+
+    document.getElementById("adminPanel").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function cancelEdit() {
+    editingIndex = null;
+    document.getElementById("editBanner").classList.remove("visible");
+
+    const saveBtn = document.getElementById("saveBtn");
+    saveBtn.textContent = "＋ 手動入力データをカタログに追加する";
+    saveBtn.classList.remove("editing");
+
+    document.getElementById("inDate").value = "";
+    document.getElementById("inTitle").value = "";
+    document.getElementById("inPrice").value = "";
+    document.getElementById("inImage").value = "";
+    document.getElementById("inUrl").value = "";
+    document.getElementById("inMemo").value = "";
+  }
+
+  function saveItem() {
+    const label = document.getElementById("inLabel").value;
+    const genre = document.getElementById("inGenre").value;
+    const date = document.getElementById("inDate").value;
+    const price = Number(String(document.getElementById("inPrice").value).replace(/[^0-9]/g, ""));
+    const title = document.getElementById("inTitle").value.trim();
+    const image = document.getElementById("inImage").value.trim();
+    const url = document.getElementById("inUrl").value.trim();
+    const memo = document.getElementById("inMemo").value.trim();
+
+    if (!title || !url) {
+      alert("「作品名」と「楽天KoboアフィリエイトURL」は必須です。");
+      return;
+    }
+
+    const itemData = { label, genre, title, date, price, image, url, memo };
+
+    if (editingIndex !== null && catalogItems[editingIndex]) {
+      catalogItems[editingIndex] = itemData;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(catalogItems));
+      cancelEdit();
+      renderCatalog();
+      exportJson();
+      alert("変更を上書き保存しました！下のJSONをコピーして items.json に貼り付けてください。");
+    } else {
+      catalogItems.unshift(itemData);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(catalogItems));
+      cancelEdit();
+      renderCatalog();
+      exportJson();
+      alert("カタログに追加しました！下のJSONをコピーして items.json に貼り付けてください。");
+    }
+  }
+
+  function deleteItem(index) {
+    if (!confirm("この作品をリストから削除しますか？")) return;
+    if (editingIndex === index) cancelEdit();
+    catalogItems.splice(index, 1);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(catalogItems));
+    renderCatalog();
+    exportJson();
+  }
+
+  function exportJson() {
+    const area = document.getElementById("jsonOutputArea");
+    const textarea = document.getElementById("jsonText");
+    area.style.display = "block";
+    textarea.value = JSON.stringify(catalogItems, null, 2);
+  }
+
+  function resetStorage() {
+    if (!confirm("ブラウザの一時保存データを消去し、最新の items.json を再読み込みしますか？")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+
+  document.querySelectorAll("#labelFilters .filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#labelFilters .filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentLabel = btn.dataset.label;
+      renderCatalog();
+    });
+  });
+
+  document.querySelectorAll("#genreFilters .filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#genreFilters .filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentGenre = btn.dataset.genre;
+      renderCatalog();
+    });
+  });
+
+  window.addEventListener("scroll", () => {
+    const btn = document.getElementById("scrollTopBtn");
+    if (window.scrollY > 250) {
+      btn.classList.add("visible");
+    } else {
+      btn.classList.remove("visible");
+    }
+  });
+
+  initCatalog();
+</script>
+</body>
+</html>
