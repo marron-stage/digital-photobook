@@ -12,8 +12,8 @@
   </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>グラビア本・雑誌 &amp; デジタル写真集カタログ｜グラビア・アイドル・声優・タレント一覧</title>
-  <meta name="description" content="話題のグラビア本・雑誌（限定表紙版含む）や、週プレ・ヤンジャン・フライデー・FLASHなど人気レーベルの最新デジタル写真集を一覧で比較・検索できるカタログサイトです。" />
+  <title>写真集・グラビア本 &amp; デジタル写真集カタログ｜グラビア・アイドル・声優・タレント一覧</title>
+  <meta name="description" content="話題の写真集・グラビア本・雑誌（限定表紙版含む）や、週プレ・ヤンジャン・フライデー・FLASHなど人気レーベルの最新デジタル写真集を一覧で比較・検索できるカタログサイトです。" />
   <meta name="google-site-verification" content="ayQpjql4aQeIt2ZV0yeS1zrJ0WSKVUyKHHWGhvxiLUs" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
   <style>
@@ -207,6 +207,7 @@
     .card-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
     .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .badge { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .badge-format-photobook { background: #fce7f3; color: #9d174d; }
     .badge-format-book { background: #fee2e2; color: #991b1b; }
     .badge-format-digital { background: #e0f2fe; color: #075985; }
     .badge-label { background: #ffedd5; color: #c2410c; }
@@ -286,13 +287,14 @@
 <header>
   <div class="header-inner">
     <div class="header-top">
-      <h1>グラビア本・雑誌 &amp; デジタル写真集カタログ</h1>
+      <h1>写真集・グラビア本 &amp; デジタル写真集カタログ</h1>
       <a class="sister-link" href="https://marron-stage.github.io/idol-catalog/">🍀 アイドル 雑誌・写真集・CD/Blu-ray カタログはこちら →</a>
     </div>
     <p class="pr-note">※当サイトはアフィリエイト広告（楽天アフィリエイト等）を利用しています。</p>
 
     <div class="filters" id="formatFilters">
       <button class="filter-btn active" data-format="すべて">すべて</button>
+      <button class="filter-btn" data-format="写真集">写真集</button>
       <button class="filter-btn" data-format="グラビア本・雑誌">グラビア本・雑誌</button>
       <button class="filter-btn" data-format="デジタル写真集">デジタル写真集</button>
     </div>
@@ -328,7 +330,7 @@
   </section>
 
   <section class="admin-panel" id="adminPanel">
-    <h2>🛠️ グラビア本・雑誌 &amp; デジタル写真集 登録・編集・JSON管理パネル</h2>
+    <h2>🛠️ 写真集・グラビア本 &amp; デジタル写真集 登録・編集・JSON管理パネル</h2>
 
     <div class="edit-banner" id="editBanner">
       <span id="editBannerText">✏️ 既存アイテムを編集中です</span>
@@ -342,6 +344,7 @@
           <label>形式</label>
           <select id="inFormat">
             <option value="デジタル写真集">デジタル写真集</option>
+            <option value="写真集">写真集</option>
             <option value="グラビア本・雑誌">グラビア本・雑誌</option>
           </select>
         </div>
@@ -366,7 +369,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>発売日・配信日（例: 2026-11-16）</label>
+          <label>発売日・配信日（例: 2026-11-18）</label>
           <input type="date" id="inDate" />
         </div>
         <div class="form-group">
@@ -524,18 +527,21 @@
     grid.innerHTML = filtered.map((item) => {
       const realIndex = catalogItems.indexOf(item);
       const itemFormat = item.format || "デジタル写真集";
-      const isBook = itemFormat === "グラビア本・雑誌";
+      const isPaper = itemFormat === "写真集" || itemFormat === "グラビア本・雑誌";
       const itemLabels = toArray(item.label, "その他");
       const itemGenres = toArray(item.genre, "グラビア");
 
       const dateLabel = item.date ? item.date.replace(/-/g, "/") : "未定";
-      const datePrefix = isBook ? "発売日：" : "配信日：";
+      const datePrefix = isPaper ? "発売日：" : "配信日：";
       const isFuture = item.date && item.date > todayStr;
       const btnClass = isFuture ? "btn-reserve" : "btn-rakuten";
-      const icon = isBook ? "📕" : "📱";
+      const icon = isPaper ? "📕" : "📱";
       const btnLabel = isFuture ? `${icon} 楽天で予約する` : `${icon} 楽天で購入・詳細`;
 
-      const formatBadgeClass = isBook ? "badge-format-book" : "badge-format-digital";
+      let formatBadgeClass = "badge-format-digital";
+      if (itemFormat === "写真集") formatBadgeClass = "badge-format-photobook";
+      else if (itemFormat === "グラビア本・雑誌") formatBadgeClass = "badge-format-book";
+
       const labelBadges = itemLabels.map(l => `<span class="badge badge-label">${escapeHtml(l)}</span>`).join("");
       const genreBadges = itemGenres.map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join("");
 
