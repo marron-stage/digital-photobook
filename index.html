@@ -12,10 +12,10 @@
   </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>デジタル写真集 カタログ｜グラビア・アイドル・声優・タレント一覧</title>
-  <meta name="description" content="週プレ・ヤンジャン・フライデー・FLASHなど人気レーベルの最新デジタル写真集を一覧で比較・検索できるカタログサイトです。" />
+  <title>グラビア本・雑誌 &amp; デジタル写真集カタログ｜グラビア・アイドル・声優・タレント一覧</title>
+  <meta name="description" content="話題のグラビア本・雑誌（限定表紙版含む）や、週プレ・ヤンジャン・フライデー・FLASHなど人気レーベルの最新デジタル写真集を一覧で比較・検索できるカタログサイトです。" />
   <meta name="google-site-verification" content="ayQpjql4aQeIt2ZV0yeS1zrJ0WSKVUyKHHWGhvxiLUs" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
   <style>
     :root {
       --bg: #fff7ed;
@@ -52,7 +52,7 @@
       gap: 10px;
       margin-bottom: 4px;
     }
-    h1 { margin: 0; font-size: 1.3rem; color: #7c2d12; }
+    h1 { margin: 0; font-size: 1.25rem; color: #7c2d12; }
     .sister-link {
       display: inline-flex;
       align-items: center;
@@ -207,6 +207,8 @@
     .card-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
     .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .badge { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .badge-format-book { background: #fee2e2; color: #991b1b; }
+    .badge-format-digital { background: #e0f2fe; color: #075985; }
     .badge-label { background: #ffedd5; color: #c2410c; }
     .badge-genre { background: #fef3c7; color: #92400e; }
     .card-title { font-size: 0.96rem; font-weight: 700; margin: 0 0 10px; line-height: 1.45; }
@@ -284,10 +286,16 @@
 <header>
   <div class="header-inner">
     <div class="header-top">
-      <h1>デジタル写真集 カタログ</h1>
+      <h1>グラビア本・雑誌 &amp; デジタル写真集カタログ</h1>
       <a class="sister-link" href="https://marron-stage.github.io/idol-catalog/">🍀 アイドル 雑誌・写真集・CD/Blu-ray カタログはこちら →</a>
     </div>
     <p class="pr-note">※当サイトはアフィリエイト広告（楽天アフィリエイト等）を利用しています。</p>
+
+    <div class="filters" id="formatFilters">
+      <button class="filter-btn active" data-format="すべて">すべて</button>
+      <button class="filter-btn" data-format="グラビア本・雑誌">グラビア本・雑誌</button>
+      <button class="filter-btn" data-format="デジタル写真集">デジタル写真集</button>
+    </div>
 
     <div class="filters" id="labelFilters">
       <button class="filter-btn active" data-label="すべて">すべて</button>
@@ -320,7 +328,7 @@
   </section>
 
   <section class="admin-panel" id="adminPanel">
-    <h2>🛠️ デジタル写真集 登録・編集・JSON管理パネル</h2>
+    <h2>🛠️ グラビア本・雑誌 &amp; デジタル写真集 登録・編集・JSON管理パネル</h2>
 
     <div class="edit-banner" id="editBanner">
       <span id="editBannerText">✏️ 既存アイテムを編集中です</span>
@@ -330,6 +338,13 @@
     <details id="manualFormDetails" open style="margin-bottom: 18px;">
       <summary style="cursor:pointer; font-weight:700; color:#9a3412; margin-bottom:12px;">✍️ 手動で1件ずつ入力・編集する</summary>
       <div class="form-grid">
+        <div class="form-group">
+          <label>形式</label>
+          <select id="inFormat">
+            <option value="デジタル写真集">デジタル写真集</option>
+            <option value="グラビア本・雑誌">グラビア本・雑誌</option>
+          </select>
+        </div>
         <div class="form-group">
           <label>レーベル（出版社）</label>
           <select id="inLabel">
@@ -351,7 +366,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>配信日（例: 2026-11-16）</label>
+          <label>発売日・配信日（例: 2026-11-16）</label>
           <input type="date" id="inDate" />
         </div>
         <div class="form-group">
@@ -360,19 +375,19 @@
         </div>
         <div class="form-group full">
           <label>作品名</label>
-          <input type="text" id="inTitle" placeholder="【デジタル限定】〇〇写真集..." />
+          <input type="text" id="inTitle" placeholder="作品タイトル・限定版情報など" />
         </div>
         <div class="form-group full">
           <label>表紙画像URL</label>
           <input type="text" id="inImage" placeholder="https://..." />
         </div>
         <div class="form-group full">
-          <label>楽天KoboアフィリエイトURL</label>
+          <label>楽天アフィリエイトURL</label>
           <input type="text" id="inUrl" placeholder="https://hb.afl.rakuten.co.jp/..." />
         </div>
         <div class="form-group full">
-          <label>ひとことメモ（ページ数・見どころなど）</label>
-          <textarea id="inMemo" placeholder="・全75ページ"></textarea>
+          <label>ひとことメモ（ページ数・特典・見どころなど）</label>
+          <textarea id="inMemo" placeholder="・全75ページ / 楽天限定表紙版 など"></textarea>
         </div>
       </div>
       <button class="btn btn-save" id="saveBtn" onclick="saveItem()">＋ 手動入力データをカタログに追加する</button>
@@ -402,6 +417,7 @@
   const STORAGE_KEY = "digital_pb_items_v1";
 
   let catalogItems = [];
+  let currentFormat = "すべて";
   let currentLabel = "すべて";
   let currentGenre = "すべて";
   let editingIndex = null;
@@ -477,6 +493,12 @@
     return `${y}-${m}-${d}`;
   }
 
+  function toArray(val, fallback) {
+    if (Array.isArray(val)) return val.length ? val : [fallback];
+    if (val) return [val];
+    return [fallback];
+  }
+
   function renderCatalog() {
     const grid = document.getElementById("catalogGrid");
     if (!Array.isArray(catalogItems)) catalogItems = [];
@@ -484,22 +506,38 @@
     const todayStr = getTodayString();
 
     const filtered = catalogItems.filter(item => {
-      const matchLabel = currentLabel === "すべて" || item.label === currentLabel;
-      const matchGenre = currentGenre === "すべて" || item.genre === currentGenre;
-      return matchLabel && matchGenre;
+      const itemFormat = item.format || "デジタル写真集";
+      const itemLabels = toArray(item.label, "その他");
+      const itemGenres = toArray(item.genre, "グラビア");
+
+      const matchFormat = currentFormat === "すべて" || itemFormat === currentFormat;
+      const matchLabel = currentLabel === "すべて" || itemLabels.includes(currentLabel);
+      const matchGenre = currentGenre === "すべて" || itemGenres.includes(currentGenre);
+      return matchFormat && matchLabel && matchGenre;
     });
 
     if (filtered.length === 0) {
-      grid.innerHTML = `<div class="empty-msg">該当するデジタル写真集がありません。</div>`;
+      grid.innerHTML = `<div class="empty-msg">該当する作品がありません。</div>`;
       return;
     }
 
     grid.innerHTML = filtered.map((item) => {
       const realIndex = catalogItems.indexOf(item);
+      const itemFormat = item.format || "デジタル写真集";
+      const isBook = itemFormat === "グラビア本・雑誌";
+      const itemLabels = toArray(item.label, "その他");
+      const itemGenres = toArray(item.genre, "グラビア");
+
       const dateLabel = item.date ? item.date.replace(/-/g, "/") : "未定";
+      const datePrefix = isBook ? "発売日：" : "配信日：";
       const isFuture = item.date && item.date > todayStr;
       const btnClass = isFuture ? "btn-reserve" : "btn-rakuten";
-      const btnLabel = isFuture ? "📱 楽天Koboで予約する" : "📱 楽天Koboで購入・詳細";
+      const icon = isBook ? "📕" : "📱";
+      const btnLabel = isFuture ? `${icon} 楽天で予約する` : `${icon} 楽天で購入・詳細`;
+
+      const formatBadgeClass = isBook ? "badge-format-book" : "badge-format-digital";
+      const labelBadges = itemLabels.map(l => `<span class="badge badge-label">${escapeHtml(l)}</span>`).join("");
+      const genreBadges = itemGenres.map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join("");
 
       return `
         <article class="card">
@@ -508,14 +546,15 @@
           </div>
           <div class="card-body">
             <div class="badges">
-              <span class="badge badge-label">${escapeHtml(item.label || 'その他')}</span>
-              <span class="badge badge-genre">${escapeHtml(item.genre || 'グラビア')}</span>
+              <span class="badge ${formatBadgeClass}">${escapeHtml(itemFormat)}</span>
+              ${labelBadges}
+              ${genreBadges}
             </div>
             <h2 class="card-title">${escapeHtml(item.title || '')}</h2>
             ${item.memo ? `<div class="memo-box">${escapeHtml(item.memo)}</div>` : ""}
             <div class="card-meta">
               <div class="price">${formatPrice(item.price)} <small>(税込)</small></div>
-              <div class="release-date">配信日：${dateLabel}</div>
+              <div class="release-date">${datePrefix}${dateLabel}</div>
             </div>
             <div class="card-actions">
               <a class="action-btn ${btnClass}" href="${item.url || '#'}" target="_blank" rel="nofollow sponsored noopener">${btnLabel}</a>
@@ -546,8 +585,9 @@
 
     editingIndex = index;
     document.getElementById("manualFormDetails").open = true;
-    document.getElementById("inLabel").value = item.label || "その他";
-    document.getElementById("inGenre").value = item.genre || "グラビア";
+    document.getElementById("inFormat").value = item.format || "デジタル写真集";
+    document.getElementById("inLabel").value = Array.isArray(item.label) ? (item.label[0] || "その他") : (item.label || "その他");
+    document.getElementById("inGenre").value = Array.isArray(item.genre) ? (item.genre[0] || "グラビア") : (item.genre || "グラビア");
     document.getElementById("inDate").value = item.date || "";
     document.getElementById("inPrice").value = item.price || "";
     document.getElementById("inTitle").value = item.title || "";
@@ -583,6 +623,7 @@
   }
 
   function saveItem() {
+    const format = document.getElementById("inFormat").value;
     const label = document.getElementById("inLabel").value;
     const genre = document.getElementById("inGenre").value;
     const date = document.getElementById("inDate").value;
@@ -593,11 +634,11 @@
     const memo = document.getElementById("inMemo").value.trim();
 
     if (!title || !url) {
-      alert("「作品名」と「楽天KoboアフィリエイトURL」は必須です。");
+      alert("「作品名」と「楽天アフィリエイトURL」は必須です。");
       return;
     }
 
-    const itemData = { label, genre, title, date, price, image, url, memo };
+    const itemData = { format, label, genre, title, date, price, image, url, memo };
 
     if (editingIndex !== null && catalogItems[editingIndex]) {
       catalogItems[editingIndex] = itemData;
@@ -637,6 +678,15 @@
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
   }
+
+  document.querySelectorAll("#formatFilters .filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#formatFilters .filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentFormat = btn.dataset.format;
+      renderCatalog();
+    });
+  });
 
   document.querySelectorAll("#labelFilters .filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
