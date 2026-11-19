@@ -4,6 +4,7 @@ import re
 from PIL import Image, ImageDraw, ImageFont
 
 raw_data_str = os.environ.get("RAW_DATA", "{}").strip()
+cast = os.environ.get("CAST", "").strip()
 item_format = os.environ.get("FORMAT", "写真集").strip()
 label = os.environ.get("LABEL", "その他").strip()
 genre = os.environ.get("GENRE", "グラビア").strip()
@@ -33,13 +34,15 @@ if custom_memo:
     memo = custom_memo.replace("\\n", "\n")
 else:
     sentences = [s.strip() for s in re.split(r'[。！!？?]', raw_memo) if len(s.strip()) > 4][:3]
-    memo = "\n".join([f"・{s}" for s in sentences]) if sentences else f"・{title}"
+    memo = "\n".join([f"{s}。" for s in sentences]) if sentences else title
 
+# 4. 既存items.jsonのキー順に合わせたデータ作成
 new_item = {
+    "title": title,
+    "cast": cast if cast else title.split()[0],
     "format": item_format,
     "label": label,
     "genre": genre,
-    "title": title,
     "date": date,
     "price": price,
     "image": image_url,
@@ -47,7 +50,6 @@ new_item = {
     "memo": memo
 }
 
-# 4. items.json へ追記
 json_path = "items.json"
 if os.path.exists(json_path):
     with open(json_path, "r", encoding="utf-8") as f:
@@ -60,7 +62,7 @@ items.insert(0, new_item)
 with open(json_path, "w", encoding="utf-8") as f:
     json.dump(items, f, ensure_ascii=False, indent=2)
 
-# 5. X告知用PNG画像の自動生成（オレンジ×ピンクのグラビアカラー）
+# 5. X告知用PNG画像の自動生成（1200x675 16:9）
 os.makedirs("x_posts", exist_ok=True)
 W, H = 1200, 675
 
@@ -81,14 +83,19 @@ font_path = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
 if not os.path.exists(font_path):
     font_path = "/usr/share/fonts/truetype/noto/NotoSansCJK-Bold.ttc"
 
-font_badge = ImageFont.truetype(font_path, 40)
-font_title = ImageFont.truetype(font_path, 46)
-font_memo = ImageFont.truetype(font_path, 30)
+font_badge = ImageFont.truetype(font_path, 38)
+font_cast = ImageFont.truetype(font_path, 48)
+font_title = ImageFont.truetype(font_path, 38)
+font_memo = ImageFont.truetype(font_path, 28)
 font_footer = ImageFont.truetype(font_path, 28)
 
-draw.text((60, 54), f"【{item_format} / {label} / {genre}】", fill=(255, 255, 255), font=font_badge)
+draw.text((60, 56), f"【{item_format} / {label} / {genre}】", fill=(255, 255, 255), font=font_badge)
 
-def wrap_text(text, max_chars=22):
+# 出演者・タレント名（cast）を強調表示
+cast_display = new_item["cast"]
+draw.text((60, 155), f"◆ {cast_display}", fill=dark_text, font=font_cast)
+
+def wrap_text(text, max_chars=26):
     lines = []
     for paragraph in text.split("\n"):
         while len(paragraph) > max_chars:
@@ -98,15 +105,15 @@ def wrap_text(text, max_chars=22):
             lines.append(paragraph)
     return lines
 
-y = 165
-for line in wrap_text(title, 22)[:3]:
+y = 225
+for line in wrap_text(title, 26)[:2]:
     draw.text((60, y), line, fill=(30, 30, 35), font=font_title)
-    y += 62
+    y += 52
 
-y += 20
-for line in wrap_text(memo, 32)[:3]:
+y += 16
+for line in wrap_text(memo, 34)[:3]:
     draw.text((60, y), line, fill=(75, 75, 85), font=font_memo)
-    y += 44
+    y += 40
 
 draw.line([(60, H - 125), (W - 60, H - 125)], fill=accent, width=3)
 date_prefix = "配信日：" if item_format == "デジタル写真集" else "発売日："
@@ -116,15 +123,18 @@ draw.text((60, H - 100), f"{release_str} ｜ {price_str}", fill=dark_text, font=
 
 img.save("x_posts/latest_post.png")
 
+cast_tag = f"#{cast_display.replace(' ', '')}" if cast_display else ""
 post_text = f"""【新刊{item_format}情報】
 
+{cast_display}
 『{title}』
+
 {memo}
 
 📅 {release_str}
 💰 {price_str}
 
-#{genre} #写真集 #グラビア
+{cast_tag} #{genre} #写真集
 
 👇予約・詳細リンクはリプ欄へ！"""
 
