@@ -7,8 +7,12 @@ on:
         description: '① ブックマークレットでコピーしたJSONを貼り付け'
         required: true
         type: string
+      cast:
+        description: '② 出演者・タレント名（例: 白浜美兎）'
+        required: true
+        type: string
       format:
-        description: '② 形式'
+        description: '③ 形式'
         required: true
         default: '写真集'
         type: choice
@@ -17,7 +21,7 @@ on:
           - グラビア本・雑誌
           - デジタル写真集
       label:
-        description: '③ レーベル・雑誌系'
+        description: '④ レーベル・雑誌系'
         required: true
         default: 'その他'
         type: choice
@@ -30,7 +34,7 @@ on:
           - グラビア専門誌・ムック
           - その他
       genre:
-        description: '④ 属性（ジャンル）'
+        description: '⑤ 属性（ジャンル）'
         required: true
         default: 'グラビア'
         type: choice
@@ -40,11 +44,11 @@ on:
           - 声優・タレント
           - コスプレ・SNS
       af_html:
-        description: '⑤ 楽天アフィリエイトの「画像とテキスト」HTMLタグを丸ごと貼り付け（またはURL）'
+        description: '⑥ 楽天アフィリエイトの「画像とテキスト」HTMLタグを丸ごと貼り付け（またはURL）'
         required: true
         type: string
       custom_memo:
-        description: '⑥ メモを手動で入れたい場合のみ入力（空欄なら自動要約）'
+        description: '⑦ メモを手動で入れたい場合のみ入力（空欄なら自動要約）'
         required: false
         type: string
 
@@ -67,6 +71,7 @@ jobs:
       - name: items.json更新とX告知画像生成
         env:
           RAW_DATA: ${{ github.event.inputs.raw_data }}
+          CAST: ${{ github.event.inputs.cast }}
           FORMAT: ${{ github.event.inputs.format }}
           LABEL: ${{ github.event.inputs.label }}
           GENRE: ${{ github.event.inputs.genre }}
