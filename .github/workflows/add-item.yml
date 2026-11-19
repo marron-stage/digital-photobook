@@ -1,0 +1,89 @@
+name: グラビア商品追加＆X告知画像生成
+
+on:
+  workflow_dispatch:
+    inputs:
+      raw_data:
+        description: '① ブックマークレットでコピーしたJSONを貼り付け'
+        required: true
+        type: string
+      format:
+        description: '② 形式'
+        required: true
+        default: '写真集'
+        type: choice
+        options:
+          - 写真集
+          - グラビア本・雑誌
+          - デジタル写真集
+      label:
+        description: '③ レーベル・雑誌系'
+        required: true
+        default: 'その他'
+        type: choice
+        options:
+          - 週プレ
+          - ヤンジャン
+          - ヤンマガ
+          - ヤング誌
+          - 少年誌
+          - グラビア専門誌・ムック
+          - その他
+      genre:
+        description: '④ 属性（ジャンル）'
+        required: true
+        default: 'グラビア'
+        type: choice
+        options:
+          - グラビア
+          - アイドル
+          - 声優・タレント
+          - コスプレ・SNS
+      af_html:
+        description: '⑤ 楽天アフィリエイトの「画像とテキスト」HTMLタグを丸ごと貼り付け（またはURL）'
+        required: true
+        type: string
+      custom_memo:
+        description: '⑥ メモを手動で入れたい場合のみ入力（空欄なら自動要約）'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v4
+
+      - name: Python と日本語フォント・Pillowを準備
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+          pip install pillow
+
+      - name: items.json更新とX告知画像生成
+        env:
+          RAW_DATA: ${{ github.event.inputs.raw_data }}
+          FORMAT: ${{ github.event.inputs.format }}
+          LABEL: ${{ github.event.inputs.label }}
+          GENRE: ${{ github.event.inputs.genre }}
+          AF_HTML: ${{ github.event.inputs.af_html }}
+          CUSTOM_MEMO: ${{ github.event.inputs.custom_memo }}
+        run: python .github/scripts/add_item.py
+
+      - name: 変更をGitHubに保存（自動反映）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add items.json x_posts/latest_post.png x_posts/latest_post.txt
+          git commit -m "Add new gravure item via workflow"
+          git push
+
+      - name: 生成したX告知画像と投稿文を保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: x-post-package
+          path: x_posts/
