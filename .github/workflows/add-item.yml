@@ -1,4 +1,4 @@
-name: グラビア商品追加＆X告知画像生成
+name: 商品追加＆X告知画像生成
 
 on:
   workflow_dispatch:
@@ -7,49 +7,28 @@ on:
         description: '① ブックマークレットでコピーしたJSONを貼り付け'
         required: true
         type: string
-      cast:
-        description: '② 出演者・タレント名（例: 白浜美兎）'
+      groups:
+        description: '② グループ名（複数の場合はカンマ区切り 例: 櫻坂46,乃木坂46）'
         required: true
+        default: '乃木坂46'
         type: string
-      format:
-        description: '③ 形式'
+      category:
+        description: '③ カテゴリー'
         required: true
-        default: '写真集'
+        default: '雑誌'
         type: choice
         options:
+          - 雑誌
           - 写真集
-          - グラビア本・雑誌
           - デジタル写真集
-      label:
-        description: '④ レーベル・雑誌系'
-        required: true
-        default: 'その他'
-        type: choice
-        options:
-          - 週プレ
-          - ヤンジャン
-          - ヤンマガ
-          - ヤング誌
-          - 少年誌
-          - グラビア専門誌・ムック
-          - その他
-      genre:
-        description: '⑤ 属性（ジャンル）'
-        required: true
-        default: 'グラビア'
-        type: choice
-        options:
-          - グラビア
-          - アイドル
-          - 声優・タレント
-          - コスプレ・SNS
+          - CD・Blu-ray
       af_html:
-        description: '⑥ 楽天アフィリエイトの「画像とテキスト」HTMLタグを丸ごと貼り付け（またはURL）'
+        description: '④ 楽天アフィリエイトの「画像とテキスト」HTMLタグを丸ごと貼り付け（または商品URL）'
         required: true
         type: string
       custom_memo:
-        description: '⑦ メモを手動で入れたい場合のみ入力（空欄なら自動要約）'
-        required: false
+        description: '⑤ 専用チャットで作った3行要約メモを貼り付け'
+        required: true
         type: string
 
 permissions:
@@ -65,16 +44,14 @@ jobs:
       - name: Python と日本語フォント・Pillowを準備
         run: |
           sudo apt-get update
-          sudo apt-get install -y fonts-noto-cjk
+          sudo apt-get install -y fonts-ipafont-gothic
           pip install pillow
 
       - name: items.json更新とX告知画像生成
         env:
           RAW_DATA: ${{ github.event.inputs.raw_data }}
-          CAST: ${{ github.event.inputs.cast }}
-          FORMAT: ${{ github.event.inputs.format }}
-          LABEL: ${{ github.event.inputs.label }}
-          GENRE: ${{ github.event.inputs.genre }}
+          GROUPS: ${{ github.event.inputs.groups }}
+          CATEGORY: ${{ github.event.inputs.category }}
           AF_HTML: ${{ github.event.inputs.af_html }}
           CUSTOM_MEMO: ${{ github.event.inputs.custom_memo }}
         run: python .github/scripts/add_item.py
@@ -84,7 +61,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add items.json x_posts/latest_post.png x_posts/latest_post.txt
-          git commit -m "Add new gravure item via workflow"
+          git commit -m "Add new item via workflow"
           git push
 
       - name: 生成したX告知画像と投稿文を保存
